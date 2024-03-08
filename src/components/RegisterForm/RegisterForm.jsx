@@ -67,7 +67,7 @@ const RegisterForm = () => {
           <label className={css.label} htmlFor={passwordFildId}>
             Password
           </label>
-          <Field className={css.input} type="text" name="password" id={passwordFildId} />
+          <Field className={css.input} type="password" name="password" id={passwordFildId} />
           <ErrorMessage className={css.error} name="password" component="span" />
         </div>
         <button className={css.submitButton} type="submit">

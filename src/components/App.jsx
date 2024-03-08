@@ -1,67 +1,63 @@
 // import { useSelector, useDispatch } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { useEffect } from 'react';
-
-// import ContactList from './ContactList/ContactList';
-// import SearchBox from './SearchBox/SearchBox';
-// import ContactForm from './ContactForm/ContactForm';
-// import Notification from './Notification/Notification';
-// import Loader from './Loader/Loader';
-// import ErrorMessage from './ErrorMessage/ErrorMessage';
-
-// import {
-//   selectIsFilter,
-//   selectIsContact,
-//   selectIsLoading,
-//   selectIsError,
-// } from '../redux/main/selectors.js';
+import { useEffect, lazy } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import Layout from './Layout/Layout';
+import PrivateRoute from './RoutesComponent/PrivateRoute';
+import RestrictedRoute from './RoutesComponent/RestrictedRoute';
 import { refreshUser } from '../redux/auth/operations';
+import { useAuth } from '../hooks/useAuth';
 
+const HomePage = lazy(() => import('../pages/HomePage/HomePage'));
+const RegisterPage = lazy(() => import('../pages/RegisterPage/RegisterPage'));
+const LoginPage = lazy(() => import('../pages/LoginPage/LoginPage'));
+const ContactsPage = lazy(() => import('../pages/ContactsPage/ContactsPage'));
 // import './App.css';
-import ContactsPage from '../pages/ContactsPage/ContactsPage'
-import LogOut from './LogOut/LogOut'
-import LoginPage from '../pages/LoginPage/LoginPage'
-import RegisterPage from '../pages/RegisterPage/RegisterPage'
 
-function App() {
+const App = () => {
   const dispatch = useDispatch();
+  const { isRefreshing } = useAuth();
 
-  // const isContact = useSelector(selectIsContact);
-  // const isFilter = useSelector(selectIsFilter);
-  // const isLoading = useSelector(selectIsLoading);
-  // const isError = useSelector(selectIsError);
 
   useEffect(() => {
     dispatch(refreshUser());
   }, [dispatch]);
 
-  return (
+  return isRefreshing ? (
+    <b>Refreshing user...</b>
+  ) : (
     <>
-      <LogOut />
-      <LoginPage />
-      <RegisterPage />
-      <ContactsPage />
-
-      {/* <div>
-        <h1>Phonebook</h1>
-        <ContactForm />
-        <SearchBox />
-        {isLoading && <Loader />}
-        {isError && <ErrorMessage />}
-        {!isLoading &&
-          !isError &&
-          (isContact ? (
-            isFilter ? (
-              <ContactList />
-            ) : (
-              <Notification type={'isFilter'} />
-            )
-          ) : (
-            <Notification type={'isContact'} />
-          ))}
-      </div> */}
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route
+            path="/register"
+            element={
+              <RestrictedRoute
+                redirectTo="/contacts"
+                component={<RegisterPage />}
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <RestrictedRoute redirectTo="/contacts" component={<LoginPage />} />
+            }
+          />
+          <Route
+            path="/contacts"
+            element={
+              <PrivateRoute redirectTo="/login" component={<ContactsPage />} />
+            }
+          />
+        </Route>
+      </Routes>
+      <Toaster />
     </>
   );
-}
+};
 
 export default App;
+

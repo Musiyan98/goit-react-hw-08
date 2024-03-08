@@ -6,7 +6,9 @@ import { fetchContact, addContact, deleteContact } from './operations';
 
 const handleRejected = (state, action) => {
   state.loading = false;
-  state.error = action.payload;
+  if (action.payload !== 'canceled') {
+    state.error = action.payload;
+  }
 };
 
 const handlePending = state => {
